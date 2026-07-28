@@ -1,0 +1,17 @@
+{
+  "name": "Spreadsheet to YAML Tool Sheet2YAML",
+  "short_name": "Sheet2YAML",
+  "description": "A lightweight, pure HTML tool for converting Google Sheets, ODS, XLSX, and CSV data into YAML—directly in your browser.",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#f8fafc",
+  "background_color": "#f8fafc",
+  "icons": [
+    {
+      "src": "assets/favicon/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

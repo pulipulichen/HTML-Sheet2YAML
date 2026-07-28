@@ -1,0 +1,5 @@
+body { font-family: 'Inter', sans-serif; }
+.drag-over { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
+/* 隱藏捲軸但保留功能 */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

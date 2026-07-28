@@ -1,0 +1,42 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Podman
+      uses: gacts/install-podman@v1
+
+    - name: Install podman-compose
+      run: |
+        python3 -m pip install --user --upgrade pip
+        python3 -m pip install --user podman-compose
+        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+    - name: Verify Podman toolchain
+      run: |
+        podman --version
+        podman-compose --version
+
+    - name: Run E2E tests with podman-compose
+      run: |
+        podman-compose up --build --exit-code-from test-runner
+
+    - name: Upload Playwright Report (Optional)
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30

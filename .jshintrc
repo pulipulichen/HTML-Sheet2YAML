@@ -1,0 +1,12 @@
+{
+  "esversion": 11,
+  "browser": true,
+  "devel": true,
+  "module": true,
+  "globals": {
+    "XLSX": false,
+    "jsyaml": false,
+    "I18n": false,
+    "I18N_TRANSLATIONS": true
+  }
+}

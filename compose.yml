@@ -1,0 +1,8 @@
+services:
+  test-runner:
+    build:
+      context: .
+      dockerfile: Containerfile.test
+    volumes:
+      - .:/app
+    shm_size: "1gb"

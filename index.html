@@ -1,9 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>試算表轉 YAML 工具</title>
+    <title data-i18n="page.title">Spreadsheet to YAML Tool</title>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f8fafc">
+    <meta name="msapplication-TileColor" content="#f8fafc">
+    <meta name="msapplication-TileImage" content="assets/favicon/favicon.png">
+    <link rel="icon" type="image/png" href="assets/favicon/favicon.png">
+    <link rel="apple-touch-icon" href="assets/favicon/favicon.png">
     
     <!-- 引入 Tailwind CSS 用於排版與樣式 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,49 +24,47 @@
     <!-- 引入 Google Fonts (Inter) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .drag-over { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
-        /* 隱藏捲軸但保留功能 */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+    <link rel="stylesheet" href="styles/main.css">
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen">
 
     <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
-        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
                 <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                試算表轉 YAML
+                <span data-i18n="header.title">Spreadsheet to YAML</span>
             </h1>
-            <p class="text-sm text-slate-500">支援 CSV, XLSX, ODS 與 Google Sheets</p>
+            <div class="flex items-center gap-3 sm:gap-4">
+                <p class="text-sm text-slate-500" data-i18n="header.subtitle">Supports CSV, XLSX, ODS and Google Sheets</p>
+                <label for="language-select" class="sr-only" data-i18n="lang.label">Language</label>
+                <select id="language-select" class="text-sm border border-slate-300 rounded-lg px-2 py-1.5 bg-white text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"></select>
+            </div>
         </div>
     </header>
 
     <main class="max-w-5xl mx-auto px-4 py-8 space-y-8">
         
         <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
-            <h2 class="text-lg font-semibold mb-4">第一步：上傳檔案或輸入連結</h2>
+            <h2 class="text-lg font-semibold mb-4" data-i18n="step1.title">Step 1: Upload a file or enter a URL</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- 檔案上傳區 -->
                 <div id="drop-zone" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center transition-all duration-200 hover:border-blue-500 hover:bg-slate-50 cursor-pointer flex flex-col items-center justify-center min-h-[200px]">
                     <svg class="w-10 h-10 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                    <p class="text-sm font-medium text-slate-700">點擊選擇檔案，或將檔案拖曳至此</p>
-                    <p class="text-xs text-slate-500 mt-1">支援 .xlsx, .csv, .ods</p>
+                    <p class="text-sm font-medium text-slate-700" data-i18n="drop.hint">Click to choose a file, or drag and drop here</p>
+                    <p class="text-xs text-slate-500 mt-1" data-i18n="drop.formats">Supports .xlsx, .csv, .ods</p>
                     <input type="file" id="file-input" class="hidden" accept=".csv, .xlsx, .ods, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.oasis.opendocument.spreadsheet">
                 </div>
 
                 <!-- Google Sheet 連結區 -->
                 <div class="flex flex-col justify-center border-2 border-transparent bg-slate-50 rounded-xl p-6">
-                    <h3 class="text-sm font-medium text-slate-700 mb-2">或者，輸入 Google Sheet 公開連結</h3>
-                    <input type="text" id="url-input" placeholder="例如：https://docs.google.com/spreadsheets/..." class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow mb-3 text-sm">
-                    <button id="fetch-url-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors text-sm">
-                        從網址載入
+                    <h3 class="text-sm font-medium text-slate-700 mb-2" data-i18n="url.title">Or enter a public Google Sheet URL</h3>
+                    <input type="text" id="url-input" data-i18n-placeholder="url.placeholder" placeholder="e.g. https://docs.google.com/spreadsheets/..." class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow mb-3 text-sm">
+                    <button id="fetch-url-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors text-sm" data-i18n="url.fetch">
+                        Load from URL
                     </button>
-                    <p class="text-xs text-slate-500 mt-3 leading-relaxed">
-                        ⚠️ 提示：請確保您的 Google Sheet 已經「發佈到網路」(檔案 > 共用 > 發佈到網路)，並選擇以 CSV 格式發佈，或是設定為「知道連結的使用者皆可檢視」。
+                    <p class="text-xs text-slate-500 mt-3 leading-relaxed" data-i18n="url.hint">
+                        ⚠️ Tip: Make sure your Google Sheet is “Published to the web” (File > Share > Publish to web), published as CSV, or set to “Anyone with the link can view”.
                     </p>
                 </div>
             </div>
@@ -70,10 +75,10 @@
 
         <section id="results-section" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h2 class="text-lg font-semibold">轉換結果</h2>
+                <h2 class="text-lg font-semibold" data-i18n="results.title">Conversion Results</h2>
                 <button id="download-all-btn" class="hidden px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    下載全部
+                    <span data-i18n="results.downloadAll">Download All</span>
                 </button>
             </div>
             
@@ -86,293 +91,22 @@
                 <!-- 內容預覽區 -->
                 <div class="flex-1 flex flex-col bg-white relative">
                     <div class="absolute top-4 right-4 flex gap-2 z-10">
-                        <button id="copy-btn" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded shadow-sm transition-colors flex items-center gap-1">
-                            複製
+                        <button id="copy-btn" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-medium rounded shadow-sm transition-colors flex items-center gap-1" data-i18n="copy">
+                            Copy
                         </button>
-                        <button id="download-btn" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded shadow-sm transition-colors flex items-center gap-1">
-                            下載此 YAML
+                        <button id="download-btn" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded shadow-sm transition-colors flex items-center gap-1" data-i18n="download.yaml">
+                            Download this YAML
                         </button>
                     </div>
-                    <textarea id="yaml-preview" class="w-full flex-1 p-6 font-mono text-sm bg-slate-900 text-slate-50 resize-none outline-none" readonly placeholder="選擇一個分頁來預覽 YAML..."></textarea>
+                    <textarea id="yaml-preview" data-i18n-placeholder="yaml.placeholder" class="w-full flex-1 p-6 font-mono text-sm bg-slate-900 text-slate-50 resize-none outline-none" readonly placeholder="Select a sheet to preview YAML..."></textarea>
                 </div>
             </div>
         </section>
     </main>
 
-    <script>
-        // DOM Elements
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
-        const urlInput = document.getElementById('url-input');
-        const fetchUrlBtn = document.getElementById('fetch-url-btn');
-        const resultsSection = document.getElementById('results-section');
-        const tabsContainer = document.getElementById('tabs-container');
-        const yamlPreview = document.getElementById('yaml-preview');
-        const downloadBtn = document.getElementById('download-btn');
-        const copyBtn = document.getElementById('copy-btn');
-        const downloadAllBtn = document.getElementById('download-all-btn');
-        const messageBox = document.getElementById('message-box');
-
-        // State
-        let currentResults = [];
-        let activeTabIndex = 0;
-
-        // Event Listeners for File Upload
-        dropZone.addEventListener('click', () => fileInput.click());
-        
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drag-over');
-        });
-        
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('drag-over');
-        });
-        
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                handleFile(e.dataTransfer.files[0]);
-            }
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files && e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
-            }
-        });
-
-        // Event Listener for URL Fetch
-        fetchUrlBtn.addEventListener('click', async () => {
-            const url = urlInput.value.trim();
-            if (!url) return showMessage('請輸入有效的 URL', 'error');
-            
-            showMessage('正在下載並解析檔案...', 'info');
-            try {
-                // 處理 Google Sheets 一般連結轉換為匯出連結
-                let fetchUrl = url;
-                if (url.includes('docs.google.com/spreadsheets') && !url.includes('/pub')) {
-                    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-                    if (match && match[1]) {
-                        fetchUrl = `https://docs.google.com/spreadsheets/d/${match[1]}/export?format=xlsx`;
-                    }
-                }
-
-                const response = await fetch(fetchUrl);
-                if (!response.ok) throw new Error('網路請求失敗，可能是權限不足 (CORS) 或是連結無效。');
-                
-                const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                processWorkbook(workbook, 'GoogleSheet.xlsx');
-                showMessage('解析成功！', 'success');
-            } catch (error) {
-                console.error(error);
-                showMessage('無法透過連結讀取檔案。請確認連結已公開或嘗試直接下載檔案後上傳。', 'error');
-            }
-        });
-
-        function handleFile(file) {
-            showMessage('正在處理檔案...', 'info');
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    processWorkbook(workbook, file.name);
-                    showMessage('轉換成功！', 'success');
-                } catch (error) {
-                    console.error(error);
-                    showMessage('檔案解析失敗，請確認檔案格式是否正確。', 'error');
-                }
-            };
-            
-            reader.onerror = () => showMessage('讀取檔案時發生錯誤。', 'error');
-            reader.readAsArrayBuffer(file);
-        }
-
-        function processWorkbook(workbook, filename) {
-            currentResults = [];
-            const baseFilename = filename.substring(0, filename.lastIndexOf('.')) || filename;
-            const ext = filename.split('.').pop().toLowerCase();
-
-            workbook.SheetNames.forEach(sheetName => {
-                const sheet = workbook.Sheets[sheetName];
-                // header: 1 代表將每一列輸出為陣列，不把第一列當作物件的 key
-                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
-                
-                // 1. 尋找標題列 (第一列有資料的列)
-                let headerIndex = -1;
-                for (let i = 0; i < rows.length; i++) {
-                    // 檢查這列是否有任何非空的資料
-                    if (rows[i] && rows[i].some(cell => cell !== null && cell !== '' && cell !== undefined)) {
-                        headerIndex = i;
-                        break;
-                    }
-                }
-
-                if (headerIndex === -1) return; // 略過空白的分頁
-
-                const keys = rows[headerIndex];
-                const sheetData = [];
-
-                // 2. 將之後的資料列配對到 keys
-                for (let i = headerIndex + 1; i < rows.length; i++) {
-                    const row = rows[i];
-                    // 略過完全空白的列
-                    if (!row || row.length === 0 || row.every(val => val === null || val === '' || val === undefined)) continue;
-
-                    const obj = {};
-                    let hasData = false;
-                    for (let j = 0; j < keys.length; j++) {
-                        const key = keys[j];
-                        if (key && key.toString().trim() !== '') {
-                            const value = row[j];
-                            // 如果 value 不是空值或 null，才將這個 key 加入物件中
-                            if (value !== null && value !== undefined && value !== '') {
-                                obj[key.toString().trim()] = value;
-                                hasData = true;
-                            }
-                        }
-                    }
-                    if (hasData) {
-                        sheetData.push(obj);
-                    }
-                }
-
-                // 3. 如果有資料，生成 YAML
-                if (sheetData.length > 0) {
-                    // 使用 js-yaml 轉成 YAML 格式，並加上 --- 開頭
-                    const yamlStr = "---\n" + jsyaml.dump(sheetData, {
-                        indent: 2,
-                        lineWidth: -1, // 避免過長換行
-                        noRefs: true
-                    });
-                    
-                    // 決定檔名
-                    let outFilename = `${baseFilename}_${sheetName}.yml`;
-                    if (ext === 'csv') {
-                        outFilename = `${baseFilename}.yml`; // CSV 不加分頁名稱
-                    }
-
-                    currentResults.push({
-                        sheetName: sheetName,
-                        yamlStr: yamlStr,
-                        filename: outFilename
-                    });
-                }
-            });
-
-            if (currentResults.length > 0) {
-                renderUI();
-            } else {
-                showMessage('檔案中找不到有效的資料。', 'error');
-            }
-        }
-
-        function renderUI() {
-            resultsSection.classList.remove('hidden');
-            tabsContainer.innerHTML = '';
-            
-            if (currentResults.length > 1) {
-                downloadAllBtn.classList.remove('hidden');
-            } else {
-                downloadAllBtn.classList.add('hidden');
-            }
-
-            currentResults.forEach((result, index) => {
-                const btn = document.createElement('button');
-                btn.className = `text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors whitespace-nowrap md:whitespace-normal truncate ${
-                    index === 0 
-                    ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                    : 'text-slate-600 hover:bg-slate-200 border border-transparent'
-                }`;
-                btn.textContent = result.sheetName;
-                btn.onclick = () => selectTab(index);
-                tabsContainer.appendChild(btn);
-            });
-
-            selectTab(0);
-        }
-
-        function selectTab(index) {
-            activeTabIndex = index;
-            const data = currentResults[index];
-            yamlPreview.value = data.yamlStr;
-            
-            // 更新 Tab 樣式
-            Array.from(tabsContainer.children).forEach((btn, i) => {
-                if (i === index) {
-                    btn.className = 'text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors whitespace-nowrap md:whitespace-normal truncate bg-blue-100 text-blue-700 border border-blue-200 shadow-sm';
-                } else {
-                    btn.className = 'text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors whitespace-nowrap md:whitespace-normal truncate text-slate-600 hover:bg-slate-200 border border-transparent';
-                }
-            });
-        }
-
-        // 複製到剪貼簿功能
-        copyBtn.addEventListener('click', () => {
-            if (!currentResults[activeTabIndex]) return;
-            
-            yamlPreview.select();
-            document.execCommand('copy');
-            
-            const originalText = copyBtn.innerHTML;
-            copyBtn.innerHTML = '已複製！';
-            copyBtn.classList.add('text-green-600', 'border-green-600');
-            setTimeout(() => {
-                copyBtn.innerHTML = originalText;
-                copyBtn.classList.remove('text-green-600', 'border-green-600');
-            }, 2000);
-        });
-
-        // 單一檔案下載功能
-        downloadBtn.addEventListener('click', () => {
-            if (!currentResults[activeTabIndex]) return;
-            const data = currentResults[activeTabIndex];
-            downloadFile(data.yamlStr, data.filename);
-        });
-
-        // 下載全部檔案功能
-        downloadAllBtn.addEventListener('click', () => {
-            currentResults.forEach((data, i) => {
-                // 加入一點延遲避免瀏覽器阻擋多重下載
-                setTimeout(() => {
-                    downloadFile(data.yamlStr, data.filename);
-                }, i * 300);
-            });
-        });
-
-        function downloadFile(content, filename) {
-            const blob = new Blob([content], { type: 'text/yaml;charset=utf-8;' });
-            const link = document.createElement("a");
-            if (link.download !== undefined) {
-                const url = URL.createObjectURL(blob);
-                link.setAttribute("href", url);
-                link.setAttribute("download", filename);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-            }
-        }
-
-        // 提示訊息功能
-        function showMessage(msg, type = 'info') {
-            messageBox.textContent = msg;
-            messageBox.classList.remove('hidden', 'bg-blue-100', 'text-blue-700', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
-            
-            if (type === 'error') {
-                messageBox.classList.add('bg-red-100', 'text-red-700');
-            } else if (type === 'success') {
-                messageBox.classList.add('bg-green-100', 'text-green-700');
-                setTimeout(() => { messageBox.classList.add('hidden'); }, 3000);
-            } else {
-                messageBox.classList.add('bg-blue-100', 'text-blue-700');
-            }
-        }
-    </script>
+    <script src="scripts/modules/i18n/en.js"></script>
+    <script src="scripts/modules/i18n/zh-TW.js"></script>
+    <script src="scripts/modules/i18n.js"></script>
+    <script type="module" src="scripts/main.js"></script>
 </body>
 </html>

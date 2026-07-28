@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/playwright:v1.40.0-jammy
+
+WORKDIR /app
+
+# Install a simple static web server
+RUN npm install -g http-server
+
+# Create a separate directory for node_modules to avoid being overwritten by volume mount
+WORKDIR /deps
+RUN npm init -y && npm install @playwright/test@1.40.0
+
+WORKDIR /app
+# Copy project files
+
+# Run tests
+# ESM resolution in Node does not reliably use NODE_PATH for package imports.
+# Create /app/node_modules symlink so imports like `import '@playwright/test'` work in config/spec files.
+CMD ["sh", "-c", "[ -e /app/node_modules ] || ln -s /deps/node_modules /app/node_modules; http-server . -p 8080 & sleep 2 && /deps/node_modules/.bin/playwright test --output=/app/playwright-report-videos"]
