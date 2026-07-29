@@ -20,7 +20,7 @@ test('exposes PWA manifest and theme metadata', async ({ page }) => {
   const manifestResponse = await page.request.get('http://localhost:8080/manifest.json');
   expect(manifestResponse.ok()).toBeTruthy();
   const manifest = await manifestResponse.json();
-  expect(manifest.name).toBe('Spreadsheet to YAML Tool');
+  expect(manifest.name).toBe('Spreadsheet to YAML Tool Sheet2YAML');
   expect(manifest.short_name).toBe('Sheet2YAML');
   expect(manifest.display).toBe('standalone');
   expect(manifest.icons?.length).toBeGreaterThan(0);
