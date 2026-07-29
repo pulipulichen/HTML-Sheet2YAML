@@ -10,6 +10,7 @@ window.I18N_TRANSLATIONS['zh-TW'] = {
     'url.title': '或者，輸入 Google Sheet 公開連結',
     'url.placeholder': '例如：https://docs.google.com/spreadsheets/...',
     'url.fetch': '從網址載入',
+    'url.demo': '試用示範 Google Sheet',
     'url.hint': '⚠️ 提示：請確保您的 Google Sheet 已經「發佈到網路」(檔案 > 共用 > 發佈到網路)，並選擇以 CSV 格式發佈，或是設定為「知道連結的使用者皆可檢視」。',
     'results.title': '轉換結果',
     'results.downloadAll': '下載全部',

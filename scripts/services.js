@@ -2,7 +2,7 @@
  * 資料存取：本機檔案讀取、遠端 URL 下載
  */
 
-import { toGoogleSheetExportUrl } from './utils.js';
+import { parseFilenameFromContentDisposition, toGoogleSheetExportUrl } from './utils.js';
 
 /**
  * 從 File 讀取並解析為 SheetJS workbook
@@ -28,6 +28,7 @@ export function readWorkbookFromFile(file) {
 
 /**
  * 從 URL（含 Google Sheets）下載並解析為 workbook
+ * @returns {Promise<{ workbook: object, filename: string }>}
  */
 export async function fetchWorkbookFromUrl(url) {
     const fetchUrl = toGoogleSheetExportUrl(url);
@@ -35,6 +36,12 @@ export async function fetchWorkbookFromUrl(url) {
     if (!response.ok) {
         throw new Error('networkError');
     }
+    const filename = parseFilenameFromContentDisposition(
+        response.headers.get('Content-Disposition')
+    ) || 'GoogleSheet.xlsx';
     const arrayBuffer = await response.arrayBuffer();
-    return XLSX.read(arrayBuffer, { type: 'array' });
+    return {
+        workbook: XLSX.read(arrayBuffer, { type: 'array' }),
+        filename
+    };
 }

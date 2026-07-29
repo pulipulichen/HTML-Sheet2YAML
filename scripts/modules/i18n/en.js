@@ -10,6 +10,7 @@ window.I18N_TRANSLATIONS.en = {
     'url.title': 'Or enter a public Google Sheet URL',
     'url.placeholder': 'e.g. https://docs.google.com/spreadsheets/...',
     'url.fetch': 'Load from URL',
+    'url.demo': 'Try demo Google Sheet',
     'url.hint': '⚠️ Tip: Make sure your Google Sheet is “Published to the web” (File > Share > Publish to web), published as CSV, or set to “Anyone with the link can view”.',
     'results.title': 'Conversion Results',
     'results.downloadAll': 'Download All',

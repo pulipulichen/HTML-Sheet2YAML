@@ -6,10 +6,14 @@ import { downloadFile } from './utils.js';
 import { processWorkbook } from './core.js';
 import { readWorkbookFromFile, fetchWorkbookFromUrl } from './services.js';
 
+const DEMO_GOOGLE_SHEET_URL =
+    'https://docs.google.com/spreadsheets/d/1dOFyNqpjL5K7k-26K-C5wfArAruiYoXcyuXYCkTpbbc/edit?usp=sharing';
+
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
 const urlInput = document.getElementById('url-input');
 const fetchUrlBtn = document.getElementById('fetch-url-btn');
+const loadDemoBtn = document.getElementById('load-demo-btn');
 const resultsSection = document.getElementById('results-section');
 const tabsContainer = document.getElementById('tabs-container');
 const yamlPreview = document.getElementById('yaml-preview');
@@ -143,20 +147,29 @@ export function initUI() {
         }
     });
 
-    fetchUrlBtn.addEventListener('click', async () => {
-        const url = urlInput.value.trim();
-        if (!url) return showMessage(t('msg.invalidUrl'), 'error');
+    async function loadFromUrl(url) {
+        const trimmed = (url || '').trim();
+        if (!trimmed) return showMessage(t('msg.invalidUrl'), 'error');
 
         showMessage(t('msg.downloading'), 'info');
         try {
-            const workbook = await fetchWorkbookFromUrl(url);
-            if (applyWorkbook(workbook, 'GoogleSheet.xlsx')) {
+            const { workbook, filename } = await fetchWorkbookFromUrl(trimmed);
+            if (applyWorkbook(workbook, filename)) {
                 showMessage(t('msg.parseSuccess'), 'success');
             }
         } catch (error) {
             console.error(error);
             showMessage(t('msg.fetchFailed'), 'error');
         }
+    }
+
+    fetchUrlBtn.addEventListener('click', () => {
+        loadFromUrl(urlInput.value);
+    });
+
+    loadDemoBtn.addEventListener('click', () => {
+        urlInput.value = DEMO_GOOGLE_SHEET_URL;
+        loadFromUrl(DEMO_GOOGLE_SHEET_URL);
     });
 
     copyBtn.addEventListener('click', () => {

@@ -21,10 +21,11 @@ test('imports a CSV file and shows YAML preview', async ({ page }) => {
   const resultsSection = page.locator('#results-section');
   await expect(resultsSection).toBeVisible({ timeout: 60000 });
 
+  // textarea content is in .value, not textContent
   const yamlPreview = page.locator('#yaml-preview');
-  await expect(yamlPreview).toContainText('Alice');
-  await expect(yamlPreview).toContainText('Taipei');
-  await expect(yamlPreview).toContainText('name:');
+  await expect(yamlPreview).toHaveValue(/Alice/);
+  await expect(yamlPreview).toHaveValue(/Taipei/);
+  await expect(yamlPreview).toHaveValue(/name:/);
 
   await expect(page.locator('#copy-btn')).toBeVisible();
   await expect(page.locator('#download-btn')).toBeVisible();
@@ -46,4 +47,19 @@ test('shows an error when fetching with an empty URL', async ({ page }) => {
   const messageBox = page.locator('#message-box');
   await expect(messageBox).toBeVisible();
   await expect(messageBox).toHaveText('Please enter a valid URL');
+});
+
+test('fills the demo Google Sheet URL when clicking the demo button', async ({ page }) => {
+  await page.goto('http://localhost:8080');
+
+  // Avoid depending on external Google network during E2E
+  await page.route('**/spreadsheets/**', async route => {
+    await route.abort();
+  });
+
+  await page.locator('#load-demo-btn').click();
+
+  await expect(page.locator('#url-input')).toHaveValue(
+    'https://docs.google.com/spreadsheets/d/1dOFyNqpjL5K7k-26K-C5wfArAruiYoXcyuXYCkTpbbc/edit?usp=sharing'
+  );
 });
